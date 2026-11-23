@@ -1,1 +1,7 @@
-{ "bakim": false }
+{
+  "bakim": false,
+  "mesaj": "",
+  "bilesenler": {},
+  "planli": [],
+  "olaylar": []
+}
