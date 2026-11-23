@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>xokul | Bakım çalışması</title>
+    <!--
+      Bağımsız bakım sayfası. Sunucu KAPALIYKEN paneli açan kişiye gösterilir:
+      taşıma gecesi panelin alan adı (app.xokul.co) bu siteye çevrilir.
+      Tek dosya, dış bağımlılık yok. Panel içindeki bakım ekranının aynısı
+      (apps/web/components/maintenance-overlay.tsx).
+
+      Bakım bitince kendiliğinden panele döner: durum.json dakikada bir okunur,
+      "bakim": false olunca sayfa yenilenir (alan adı o sırada yeni sunucuya
+      çevrilmiş olur).
+    -->
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #38302b;
+        --muted: #9c8b7f;
+        --primary: #ff7e5f;
+        --soft: #ffede6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #19191a;
+          --fg: #f2e9e4;
+          --muted: #d7c6bc;
+          --soft: #513835;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          Outfit,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 24px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .ust {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .ust p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+      .orta {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+      }
+      .ikon {
+        position: relative;
+        width: 192px;
+        height: 192px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .halka {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--primary);
+        opacity: 0;
+        animation: halka 2.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+      }
+      .halka:nth-child(2) {
+        animation-delay: -0.87s;
+      }
+      .halka:nth-child(3) {
+        animation-delay: -1.74s;
+      }
+      .cekirdek {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+      }
+      @keyframes halka {
+        0% {
+          transform: scale(1);
+          opacity: 0;
+        }
+        15% {
+          opacity: 0.22;
+        }
+        100% {
+          transform: scale(2.4);
+          opacity: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .halka {
+          animation: none;
+          transform: scale(1.4);
+          opacity: 0.1;
+        }
+      }
+      .yazi {
+        max-width: 28rem;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 24px;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+      }
+      .yazi p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ust">
+      <svg width="44" height="44" viewBox="0 0 96 96" role="img" aria-label="xokul">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFC6AD" />
+            <stop offset="35%" stop-color="#FF9072" />
+            <stop offset="75%" stop-color="#FF7E5F" />
+            <stop offset="100%" stop-color="#F26A4F" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(48 48)" fill="url(#g)">
+          <path transform="rotate(45)" d="M 0 0 C -10 -14, -10 -36, 0 -42 C 10 -36, 10 -14, 0 0 Z" />
+          <path transform="rotate(135)" d="M 0 0 C -10 -14, -10 -36, 0 -42 C 10 -36, 10 -14, 0 0 Z" />
+          <path transform="rotate(225)" d="M 0 0 C -10 -14, -10 -36, 0 -42 C 10 -36, 10 -14, 0 0 Z" />
+          <path transform="rotate(315)" d="M 0 0 C -10 -14, -10 -36, 0 -42 C 10 -36, 10 -14, 0 0 Z" />
+          <circle r="5" fill="#FFE1D2" />
+        </g>
+      </svg>
+      <p>Bakım bitince panel kendiliğinden açılır.</p>
+    </div>
+
+    <div class="orta">
+      <div class="ikon">
+        <span class="halka"></span><span class="halka"></span><span class="halka"></span>
+        <span class="cekirdek">
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+            />
+          </svg>
+        </span>
+      </div>
+      <div class="yazi">
+        <h1>Bakım çalışması yapıyoruz</h1>
+        <p id="mesaj">
+          xokul'u sizin için daha hızlı ve daha güvenli hale getiriyoruz. Kısa süre sonra yeniden
+          hizmetinizdeyiz.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Durum dosyası bu sitenin kendisinde. Bakım bitince panele dön.
+      (function () {
+        var DOSYA = 'https://durum.xokul.co/durum.json';
+        var PANEL_HOST = 'app.xokul.co';
+        function don() {
+          // Bu sayfa durum sitesinde açıldıysa panele git. Panelin alan adında
+          // açıldıysa (taşıma gecesi buraya çevrilmişti) yenile: alan adı yeni
+          // sunucuya dönmüşse panel açılır. Dönmediyse dakikada en çok bir kez
+          // yeniden denenir (sonsuz hızlı yenileme olmasın).
+          if (location.hostname !== PANEL_HOST) {
+            location.href = 'https://' + PANEL_HOST + '/';
+            return;
+          }
+          var son = 0;
+          try {
+            son = Number(sessionStorage.getItem('bakim-yenile')) || 0;
+          } catch (e) {}
+          if (Date.now() - son < 55000) return;
+          try {
+            sessionStorage.setItem('bakim-yenile', String(Date.now()));
+          } catch (e) {}
+          location.reload();
+        }
+        function bak() {
+          fetch(DOSYA + '?t=' + Math.floor(Date.now() / 30000), { cache: 'no-store' })
+            .then(function (r) {
+              return r.ok ? r.json() : null;
+            })
+            .then(function (d) {
+              if (!d) return;
+              if (typeof d.mesaj === 'string' && d.mesaj.trim()) {
+                document.getElementById('mesaj').textContent = d.mesaj.trim().slice(0, 400);
+              }
+              if (d.bakim !== true) don();
+            })
+            .catch(function () {});
+        }
+        bak();
+        setInterval(bak, 60000);
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') bak();
+        });
+      })();
+    </script>
+  </body>
+</html>
